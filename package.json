@@ -1,16 +1,22 @@
 {
   "name": "openclaw",
   "version": "1.0.0",
-  "description": "HTML5 canvas claw-machine arcade game.",
+  "description": "Self-hosted multi-channel gateway for personal AI agents.",
   "main": "index.html",
   "scripts": {
     "start": "npx http-server . -p 8080 -o",
     "test": "node tests/smoke.js"
   },
   "keywords": [
-    "game",
-    "canvas",
-    "javascript"
+    "ai-agent",
+    "gateway",
+    "chat",
+    "whatsapp",
+    "telegram",
+    "discord",
+    "slack",
+    "signal",
+    "self-hosted"
   ],
   "license": "MIT",
   "devDependencies": {}

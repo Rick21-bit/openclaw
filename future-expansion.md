@@ -1,11 +1,11 @@
 # Future Expansion Roadmap
 
-This project is intentionally small but built to grow. Possible next steps:
+OpenClaw is intentionally small but built to grow into a full self-hosted AI agent gateway.
 
-1. **Backend + Auth**: Add a Node.js/Express API with JWT auth and a database (SQLite/PostgreSQL).
-2. **Mobile app**: Wrap the web UI with Capacitor or build a React Native companion.
-3. **AI features**: Integrate local or API-based models for recommendations, summarization, or predictions.
-4. **Collaboration**: Add multiplayer/team support with real-time sync (WebSockets or Firebase).
-5. **Data export / API**: Provide REST/GraphQL endpoints and support CSV/JSON import-export.
-6. **Testing & CI**: Add Jest/Cypress tests and GitHub Actions for continuous deployment.
-7. **Monetization**: Stripe billing, usage tiers, or self-hosted licensing.
+1. **Real channel adapters** — WhatsApp, Telegram, Discord, Slack, Signal, iMessage bridges using official or local APIs.
+2. **Backend runtime** — Node.js/Python gateway with queueing, authentication, and multi-session orchestration.
+3. **Skill SDK** — Add custom tools via a JS/Python plugin model with sandboxed execution.
+4. **LLM provider flex** — OpenRouter, OpenAI, Anthropic, Gemini, Ollama, and local model switching.
+5. **Memory backend** — Vector store for long-term facts and semantic retrieval.
+6. **Web Control UI live sync** — Real-time logs, streaming responses, and remote control via WebSockets.
+7. **CI/CD and deployment** — GitHub Actions, Docker image, and one-click self-host templates.
