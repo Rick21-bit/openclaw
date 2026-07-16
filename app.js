@@ -125,11 +125,22 @@ function renderChat() {
     input.value = '';
     msgWrap.scrollTop = msgWrap.scrollHeight;
     setTimeout(() => {
+      const lower = txt.toLowerCase();
+      const isPing = /\bping\b|\bpong\b|pingpon/.test(lower);
+      const replyText = isPing
+        ? 'Opening the PingPON Arcade skill. You can train a neural net challenger or play against the best brain.'
+        : 'Simulated reply: I’ve noted that and will act when channels are live.';
+      const toolText = isPing ? '> skills.launch("pingpon")' : '> reasoning.simulate()';
       msgWrap.appendChild(el('div', { class: 'message agent' },
         el('div', { class: 'meta', text: 'OpenClaw · now' }),
-        el('div', { text: 'Simulated reply: I’ve noted that and will act when channels are live.' }),
-        el('div', { class: 'tool-trace', text: '> reasoning.simulate()' })
+        el('div', { text: replyText }),
+        el('div', { class: 'tool-trace', text: toolText })
       ));
+      if (isPing) {
+        msgWrap.appendChild(el('div', { class: 'message agent' },
+          el('a', { class: 'btn', href: '#arcade', text: '🏓 Open Arcade' })
+        ));
+      }
       msgWrap.scrollTop = msgWrap.scrollHeight;
     }, 600);
   });
@@ -246,6 +257,41 @@ function renderSkills() {
   ));
 }
 
+function renderArcade() {
+  setPageTitle('Arcade');
+  const root = $('#page-content');
+  root.innerHTML = '';
+
+  const tabs = el('div', { class: 'arcade-tabs' },
+    el('button', { class: 'tab-btn active', 'data-tab': 'train', text: 'Train AI' }),
+    el('button', { class: 'tab-btn', 'data-tab': 'arena', text: 'Play vs AI' })
+  );
+
+  const frameTrain = el('iframe', { class: 'arcade-frame', src: 'https://rick21-bit.github.io/pingpon/index.html', 'data-tab': 'train' });
+  const frameArena = el('iframe', { class: 'arcade-frame', style: 'display:none', src: 'https://rick21-bit.github.io/pingpon/arena.html', 'data-tab': 'arena' });
+
+  tabs.querySelectorAll('.tab-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      tabs.querySelectorAll('.tab-btn').forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      const tab = btn.dataset.tab;
+      [frameTrain, frameArena].forEach((f) => {
+        f.style.display = f.dataset.tab === tab ? 'block' : 'none';
+      });
+    });
+  });
+
+  const page = el('div', { class: 'page page-arcade' },
+    el('div', { class: 'section-header' },
+      el('h2', { text: 'PingPON Arcade' }),
+      el('p', { text: 'OpenClaw can train neural-network pong players or challenge you in the arena.' })
+    ),
+    tabs,
+    el('div', { class: 'arcade-frames' }, frameTrain, frameArena)
+  );
+  root.appendChild(page);
+}
+
 function renderMemory() {
   setPageTitle('Memory');
   const list = el('div', { class: 'memory-list' });
@@ -356,6 +402,7 @@ function route() {
     case 'sessions': renderSessions(); break;
     case 'channels': renderChannels(); break;
     case 'skills': renderSkills(); break;
+    case 'arcade': renderArcade(); break;
     case 'memory': renderMemory(); break;
     case 'settings': renderSettings(); break;
     default: window.location.hash = '#chat';

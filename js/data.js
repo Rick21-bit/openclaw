@@ -59,7 +59,8 @@ export const skills = [
   { id: 'slack', name: 'Slack', icon: '💬', desc: 'Post messages and query channels.', active: true },
   { id: 'whatsapp', name: 'WhatsApp', icon: 'W', desc: 'Send and receive WhatsApp messages.', active: true },
   { id: 'telegram', name: 'Telegram', icon: 'T', desc: 'Send and receive Telegram messages.', active: true },
-  { id: 'signal', name: 'Signal', icon: 'Si', desc: 'Send Signal messages and read groups.', active: false }
+  { id: 'signal', name: 'Signal', icon: 'Si', desc: 'Send Signal messages and read groups.', active: false },
+  { id: 'pingpon', name: 'PingPON Arcade', icon: '🏓', desc: 'Launch the neuro-evolution ping pong arcade.', active: true }
 ];
 
 export const models = [
