@@ -6,6 +6,9 @@ import {
   loadMemory, saveMemory, loadChannelState, saveChannelState
 } from './js/storage.js';
 import { $, $$, el, toast, escapeHtml } from './js/ui.js';
+import {
+  getState as getGatewayState, setUrl, register, connect, disconnect, send, listClients
+} from './js/gateway-client.js';
 
 let settings = loadSettings(defaultSettings);
 let skillState = loadSkillState();
@@ -292,6 +295,101 @@ function renderArcade() {
   root.appendChild(page);
 }
 
+function renderGateway() {
+  setPageTitle('Gateway');
+  const root = $('#page-content');
+  root.innerHTML = '';
+
+  const state = getGatewayState();
+  const log = el('div', { class: 'gateway-log' });
+
+  function append(status, text) {
+    log.prepend(el('div', { class: 'gateway-entry' },
+      el('time', { text: new Date().toLocaleTimeString() }),
+      el('span', { class: status, text })
+    ));
+  }
+
+  const urlInput = el('input', { type: 'text', value: state.url, placeholder: 'http://localhost:3000' });
+  const statusLabel = el('span', { class: 'status-line', text: state.connected ? '● connected' : '● disconnected' });
+  const actionBtn = el('button', { class: 'btn', type: 'button', text: state.clientId ? 'Reconnect' : 'Connect' });
+
+  function updateStatus() {
+    const s = getGatewayState();
+    statusLabel.textContent = s.connected ? '● connected' : '● disconnected';
+    statusLabel.style.color = s.connected ? '#10b981' : '#9ca3af';
+  }
+
+  actionBtn.addEventListener('click', async () => {
+    setUrl(urlInput.value.trim());
+    try {
+      if (!getGatewayState().clientId) {
+        await register();
+      }
+      connect((msg) => {
+        append('recv', `← ${msg.from}: ${JSON.stringify(msg.payload)}`);
+        updateStatus();
+      });
+      append('sent', `Registered as ${getGatewayState().clientId}`);
+      updateStatus();
+    } catch (err) {
+      append('error', err.message);
+    }
+  });
+
+  const disconnectBtn = el('button', { class: 'btn secondary', type: 'button', text: 'Disconnect' });
+  disconnectBtn.addEventListener('click', () => { disconnect(); updateStatus(); append('sent', 'Disconnected'); });
+
+  const targetInput = el('input', { type: 'text', placeholder: 'target client id or *' });
+  const payloadInput = el('input', { type: 'text', placeholder: '{"hello":"world"}' });
+  const sendBtn = el('button', { class: 'btn', type: 'button', text: 'Send' });
+  sendBtn.addEventListener('click', async () => {
+    try {
+      const to = targetInput.value.trim() || '*';
+      const payload = JSON.parse(payloadInput.value.trim() || '{}');
+      await send(to, payload);
+      append('sent', `→ ${to}: ${JSON.stringify(payload)}`);
+    } catch (err) {
+      append('error', err.message);
+    }
+  });
+
+  const clientsBtn = el('button', { class: 'btn secondary', type: 'button', text: 'List clients' });
+  clientsBtn.addEventListener('click', async () => {
+    try {
+      const clients = await listClients();
+      append('info', `Clients: ${clients.map((c) => `${c.id.slice(0,6)}(${c.type})`).join(', ')}`);
+    } catch (err) {
+      append('error', err.message);
+    }
+  });
+
+  const page = el('div', { class: 'page page-gateway' },
+    el('div', { class: 'section-header' },
+      el('h2', { text: 'Agent Gateway' }),
+      el('p', { text: 'Register OpenClaw with the real gateway and exchange messages with Hermes / PingPON.' })
+    ),
+    el('div', { class: 'card' },
+      el('div', { class: 'form-row' },
+        el('label', {}, 'Gateway URL', urlInput),
+        actionBtn,
+        disconnectBtn
+      ),
+      el('div', { class: 'form-row' }, statusLabel),
+      el('hr'),
+      el('div', { class: 'form-row' },
+        el('label', {}, 'To', targetInput),
+        el('label', {}, 'Payload', payloadInput),
+        sendBtn,
+        clientsBtn
+      )
+    ),
+    el('h3', { text: 'Message log' }),
+    log
+  );
+  root.appendChild(page);
+}
+
 function renderMemory() {
   setPageTitle('Memory');
   const list = el('div', { class: 'memory-list' });
@@ -403,6 +501,7 @@ function route() {
     case 'channels': renderChannels(); break;
     case 'skills': renderSkills(); break;
     case 'arcade': renderArcade(); break;
+    case 'gateway': renderGateway(); break;
     case 'memory': renderMemory(); break;
     case 'settings': renderSettings(); break;
     default: window.location.hash = '#chat';
